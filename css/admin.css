@@ -238,7 +238,7 @@ h2 {
   }
 
   .dashboard {
-    grid-template-columns: 1.1fr 0.9fr;
-    align-items: start;
+    grid-template-columns: 1fr;
+    align-items: stretch;
   }
 }
