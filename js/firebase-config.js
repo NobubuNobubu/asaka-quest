@@ -17,11 +17,12 @@ const isFirebaseConfigured = Object.values(firebaseConfig).every(
 if (typeof firebase !== 'undefined' && isFirebaseConfigured) {
   try {
     firebase.initializeApp(firebaseConfig);
+    const hasFirestore = typeof firebase.firestore === 'function';
     window.asakaFirebase = {
       enabled: true,
       auth: firebase.auth(),
-      db: firebase.firestore(),
-      reason: 'Firebase initialized',
+      db: hasFirestore ? firebase.firestore() : null,
+      reason: hasFirestore ? 'Firebase initialized' : 'Firebase initialized without Firestore',
     };
     console.info('Firebase has been initialized.');
   } catch (error) {
