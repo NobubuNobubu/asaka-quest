@@ -14,46 +14,53 @@
           <p class="eyebrow">管理画面</p>
           <h1>ASAKA QUEST 管理パネル</h1>
         </div>
-        <a class="back-link" href="index.html">← ホームへ戻る</a>
+        <a class="back-link" href="index.html">ホームへ戻る</a>
       </header>
 
       <main class="dashboard">
         <section class="panel panel--form" aria-labelledby="formTitle">
-          <h2 id="formTitle">問題を追加</h2>
+          <div class="panel-header-row">
+            <div>
+              <h2 id="formTitle">問題を追加</h2>
+              <p class="panel-note">必要な項目を入力して、保存ボタンを押してください。編集中は下部に状態が表示されます。</p>
+            </div>
+            <div class="status-tag" id="editStatus" hidden>新規追加モード</div>
+          </div>
+
           <form id="questionForm" class="question-form">
             <label>
               問題文
-              <textarea id="questionText" rows="3" required></textarea>
+              <textarea id="questionText" rows="3" required placeholder="例: 校庭の広さは何mですか？"></textarea>
             </label>
 
             <label>
               選択肢1
-              <input id="option1" type="text" required />
+              <input id="option1" type="text" required placeholder="例: 30m" />
             </label>
 
             <label>
               選択肢2
-              <input id="option2" type="text" required />
+              <input id="option2" type="text" required placeholder="例: 40m" />
             </label>
 
             <label>
               選択肢3
-              <input id="option3" type="text" required />
+              <input id="option3" type="text" required placeholder="例: 50m" />
             </label>
 
             <label>
               選択肢4
-              <input id="option4" type="text" required />
+              <input id="option4" type="text" required placeholder="例: 60m" />
             </label>
 
-            <label>
-              正解番号
+            <label class="grid-two-column">
+              <span>正解番号</span>
               <input id="answerIndex" type="number" min="1" max="4" value="1" required />
             </label>
 
             <label>
               解説
-              <textarea id="explanation" rows="2"></textarea>
+              <textarea id="explanation" rows="2" placeholder="正解の理由やポイントを書きます。"></textarea>
             </label>
 
             <label>
@@ -66,14 +73,22 @@
               公開する
             </label>
 
-            <button type="submit">問題を保存</button>
+            <div class="form-actions">
+              <button type="submit">問題を保存</button>
+              <button type="button" id="clearFormButton" class="button-secondary">入力内容をクリア</button>
+            </div>
           </form>
         </section>
 
         <section class="panel" aria-labelledby="listTitle">
           <div class="panel__head">
-            <h2 id="listTitle">問題一覧</h2>
-            <p>編集・削除・公開・非公開・並び替えを管理できます</p>
+            <div>
+              <h2 id="listTitle">問題一覧</h2>
+              <p>編集、削除、公開状態の切り替えや順番の変更ができます。</p>
+            </div>
+            <div class="panel-summary">
+              <p>問題数: <span id="questionCount">0</span></p>
+            </div>
           </div>
 
           <ul id="questionList" class="question-list"></ul>

@@ -77,12 +77,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('isPublic').checked = true;
     submitButton.textContent = '問題を保存';
     state.editingId = null;
+    const statusTag = document.getElementById('editStatus');
+    if (statusTag) {
+      statusTag.textContent = '新規追加モード';
+      statusTag.hidden = false;
+    }
   }
 
   function renderQuestions() {
     const sortedQuestions = normalizeOrder(state.questions);
     state.questions = sortedQuestions;
     list.innerHTML = '';
+
+    const countLabel = document.getElementById('questionCount');
+    if (countLabel) {
+      countLabel.textContent = String(sortedQuestions.length);
+    }
 
     if (!sortedQuestions.length) {
       const emptyItem = document.createElement('li');
@@ -122,6 +132,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('imageUrl').value = item.imageUrl;
         document.getElementById('isPublic').checked = item.isPublic;
         submitButton.textContent = '変更を保存';
+        const statusTag = document.getElementById('editStatus');
+        if (statusTag) {
+          statusTag.textContent = '編集中: ' + item.question.slice(0, 20);
+          statusTag.hidden = false;
+        }
       });
 
       questionItem.querySelector('.delete-button').addEventListener('click', () => {
@@ -187,6 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    const existingOrder = state.editingId
+      ? state.questions.find((question) => question.id === state.editingId)?.order
+      : undefined;
+
     const newQuestion = {
       id: state.editingId || `question-${Date.now()}`,
       question: questionText,
@@ -196,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
       explanation,
       imageUrl,
       isPublic,
-      order: state.questions.length + 1,
+      order: existingOrder ?? state.questions.length + 1,
     };
 
     if (state.editingId) {
@@ -214,5 +233,13 @@ document.addEventListener('DOMContentLoaded', () => {
     resetForm();
   });
 
+  const clearFormButton = document.getElementById('clearFormButton');
+  if (clearFormButton) {
+    clearFormButton.addEventListener('click', () => {
+      resetForm();
+    });
+  }
+
+  resetForm();
   renderQuestions();
 });
