@@ -172,36 +172,40 @@ document.addEventListener('DOMContentLoaded', () => {
         renderQuestions();
       });
 
-      questionItem.draggable = true;
-      questionItem.addEventListener('dragstart', (event) => {
-        dragSourceId = item.id;
-        questionItem.classList.add('dragging');
-        event.dataTransfer.effectAllowed = 'move';
-        event.dataTransfer.setData('text/plain', item.id);
-      });
+      const dragHandle = questionItem.querySelector('.drag-handle');
+      if (dragHandle) {
+        questionItem.draggable = false;
+        dragHandle.draggable = true;
 
-      questionItem.addEventListener('dragend', () => {
-        dragSourceId = null;
-        questionItem.classList.remove('dragging');
-        document.querySelectorAll('.question-item.drag-over').forEach((el) => {
-          el.classList.remove('drag-over');
+        dragHandle.addEventListener('dragstart', (event) => {
+          dragSourceId = item.id;
+          questionItem.classList.add('dragging');
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', item.id);
         });
-      });
 
-      questionItem.addEventListener('dragenter', (event) => {
-        if (event.currentTarget === event.target) {
-          event.currentTarget.classList.add('drag-over');
-        }
+        dragHandle.addEventListener('dragend', () => {
+          dragSourceId = null;
+          questionItem.classList.remove('dragging');
+          document.querySelectorAll('.question-item.drag-over').forEach((el) => {
+            el.classList.remove('drag-over');
+          });
+        });
+      }
+
+      questionItem.addEventListener('dragenter', () => {
+        questionItem.classList.add('drag-over');
       });
 
       questionItem.addEventListener('dragleave', (event) => {
-        if (event.currentTarget === event.target) {
-          event.currentTarget.classList.remove('drag-over');
+        if (!questionItem.contains(event.relatedTarget)) {
+          questionItem.classList.remove('drag-over');
         }
       });
 
       questionItem.addEventListener('dragover', (event) => {
         event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
       });
 
       questionItem.addEventListener('drop', (event) => {
