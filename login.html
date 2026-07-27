@@ -17,8 +17,8 @@
           <p class="question-text">管理画面へ入るためのログイン画面です。</p>
 
           <form class="login-form" id="loginForm">
-            <label class="login-field" for="adminId">管理者ID</label>
-            <input id="adminId" name="adminId" type="text" placeholder="admin" required />
+            <label class="login-field" for="adminId">メールアドレス</label>
+            <input id="adminId" name="adminId" type="email" placeholder="admin@example.com" required />
 
             <label class="login-field" for="adminPassword">パスワード</label>
             <input id="adminPassword" name="adminPassword" type="password" placeholder="password" required />
@@ -27,12 +27,15 @@
           </form>
 
           <p class="login-note">
-            ※ ここではサンプルとして、IDとパスワードを入力すると管理画面へ進めます。
+            ※ Firebase のメールアドレスとパスワードでログインしてください。Firebase 未設定時はローカルのサンプルログインを使用します。
           </p>
         </section>
       </main>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
   </body>
 </html>

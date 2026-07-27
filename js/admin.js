@@ -85,6 +85,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     return { firebase: false, local: true, error: new Error(window.asakaFirebase?.reason || 'Firebase unavailable') };
   }
 
+  async function ensureAuthenticated() {
+    if (!window.asakaFirebase?.enabled || !window.asakaFirebase?.auth) {
+      return true;
+    }
+
+    const currentUser = await new Promise((resolve) => {
+      const unsubscribe = window.asakaFirebase.auth.onAuthStateChanged((user) => {
+        unsubscribe();
+        resolve(user);
+      });
+    });
+
+    if (!currentUser) {
+      alert('Firebase 管理画面を利用するにはログインが必要です。ログインページへ移動します。');
+      window.location.href = 'login.html';
+      return false;
+    }
+
+    return true;
+  }
+
   async function loadQuestions() {
     if (window.asakaFirebase?.enabled && window.asakaFirebase.db) {
       try {
@@ -392,6 +413,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       resetForm();
       alert('編集中をキャンセルしました');
     });
+  }
+
+  const authOk = await ensureAuthenticated();
+  if (!authOk) {
+    return;
   }
 
   await initializeState();
