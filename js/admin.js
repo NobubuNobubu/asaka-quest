@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         event.dataTransfer.dropEffect = 'move';
       });
 
-      questionItem.addEventListener('drop', (event) => {
+      questionItem.addEventListener('drop', async (event) => {
         event.preventDefault();
         const sourceId = event.dataTransfer.getData('text/plain') || dragSourceId;
         if (!sourceId || sourceId === item.id) {
@@ -294,14 +294,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const [movedItem] = reordered.splice(sourceIndex, 1);
         reordered.splice(targetIndex, 0, movedItem);
         state.questions = normalizeOrder(reordered);
-        saveAndRefresh('順番を更新しました');
+        await saveAndRefresh('順番を更新しました');
       });
 
       list.appendChild(questionItem);
     });
   }
 
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const questionText = document.getElementById('questionText').value.trim();
@@ -347,10 +347,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           question.id === state.editingId ? { ...question, ...newQuestion } : question,
         );
       }
-      saveAndRefresh('問題を更新しました');
+      await saveAndRefresh('問題を更新しました');
     } else {
       state.questions.push(newQuestion);
-      saveAndRefresh('問題を追加しました');
+      await saveAndRefresh('問題を追加しました');
     }
 
     resetForm();
@@ -371,6 +371,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  await initializeState();
   resetForm();
   renderQuestions();
 });
