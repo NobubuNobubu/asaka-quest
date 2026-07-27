@@ -73,6 +73,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return { firebase: true, local: true };
       } catch (error) {
         console.warn('Firebase への保存に失敗しました。', error);
+        window.asakaFirebase = { enabled: false, reason: error.message || 'Firebase save failed' };
+        updateStorageStatus(false, window.asakaFirebase.reason);
         localStorage.setItem(storageKey, JSON.stringify(normalized));
         return { firebase: false, local: true, error };
       }
@@ -95,6 +97,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       } catch (error) {
         console.warn('Firebase から読み込みに失敗しました。', error);
+        if (error?.code === 'permission-denied') {
+          window.asakaFirebase = { enabled: false, reason: 'Firestore の権限が不足しています' };
+          updateStorageStatus(false, window.asakaFirebase.reason);
+        }
       }
     }
 

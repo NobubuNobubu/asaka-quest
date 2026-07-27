@@ -1,5 +1,5 @@
-// クイズデータは管理画面で保存した内容をそのまま使います。
-document.addEventListener('DOMContentLoaded', () => {
+// クイズデータは管理画面で保存した内容を Firebase から取得し、失敗時に localStorage を使います。
+document.addEventListener('DOMContentLoaded', async () => {
   const storageKey = 'asakaQuestQuestions';
   const fallbackQuestions = [
     {
@@ -18,10 +18,34 @@ document.addEventListener('DOMContentLoaded', () => {
     },
   ];
 
-  function loadQuestions() {
+  async function loadQuestionsFromFirebase() {
+    if (!window.asakaFirebase?.enabled || !window.asakaFirebase.db) {
+      return null;
+    }
+
+    try {
+      const snapshot = await window.asakaFirebase.db.collection('questions').orderBy('order').get();
+      const questions = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      return questions.map((question) => ({
+        question: question.question || question.questionText || '',
+        options: Array.isArray(question.options) && question.options.length
+          ? question.options
+          : [question.option1, question.option2, question.option3, question.option4].filter(Boolean),
+        answer: Number(question.answer ?? question.answerIndex - 1 ?? 0),
+        explanation: question.explanation || '',
+        isPublic: question.isPublic !== false,
+        order: Number(question.order || 0),
+      })).filter((question) => question.isPublic);
+    } catch (error) {
+      console.warn('Firebase からクイズを読み込めませんでした。', error);
+      return null;
+    }
+  }
+
+  function loadQuestionsFromStorage() {
     const saved = localStorage.getItem(storageKey);
     if (!saved) {
-      return fallbackQuestions;
+      return null;
     }
 
     try {
@@ -43,11 +67,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
     } catch (error) {
       console.warn('クイズデータを読み込めませんでした。', error);
-      return fallbackQuestions;
+      return null;
     }
   }
 
-  const questions = loadQuestions();
+  async function loadQuestions() {
+    const firebaseQuestions = await loadQuestionsFromFirebase();
+    if (firebaseQuestions && firebaseQuestions.length) {
+      localStorage.setItem(storageKey, JSON.stringify(firebaseQuestions));
+      return firebaseQuestions;
+    }
+
+    const storageQuestions = loadQuestionsFromStorage();
+    return storageQuestions && storageQuestions.length ? storageQuestions : fallbackQuestions;
+  }
+
+  const questions = await loadQuestions();
 
   const progressLabel = document.getElementById('progressLabel');
   const questionTitle = document.getElementById('questionTitle');
