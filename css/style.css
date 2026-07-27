@@ -1,0 +1,138 @@
+/* ベースの文字色やサイズをまとめて定義 */
+:root {
+  color-scheme: light;
+  --bg-start: #eaf7ff;
+  --bg-end: #0f4c81;
+  --text-main: #0d2f4b;
+  --text-soft: #48627a;
+  --accent: #2f7df6;
+  --accent-dark: #144f9c;
+  --white: #ffffff;
+  --shadow: 0 18px 42px rgba(9, 33, 61, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Yu Gothic UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  color: var(--text-main);
+  background: linear-gradient(135deg, var(--bg-start) 0%, #f7fbff 45%, var(--bg-end) 100%);
+  padding: 1rem;
+  animation: fade-in 0.6s ease both;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 40%);
+  pointer-events: none;
+}
+
+.page-shell {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 0.5rem;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow);
+  border-radius: 24px;
+}
+
+.hero {
+  padding: 1.5rem 1.2rem;
+  text-align: center;
+}
+
+.hero__badge {
+  display: inline-block;
+  margin: 0 0 0.75rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(47, 125, 246, 0.12);
+  color: var(--accent-dark);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.7rem, 5vw, 2.6rem);
+  line-height: 1.25;
+}
+
+.hero__text {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+.menu-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.menu-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1.1rem 1rem;
+  border: 0;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.menu-card:hover,
+.menu-card:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(9, 33, 61, 0.18);
+}
+
+.menu-card__icon {
+  font-size: 1.3rem;
+}
+
+.footer {
+  text-align: center;
+  padding: 1.5rem 1rem 2rem;
+  color: var(--white);
+  font-size: 0.95rem;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 700px) {
+  body {
+    padding: 2rem;
+  }
+
+  .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASAKA QUEST 結果</title>
+    <meta name="description" content="ASAKA QUESTの結果画面です。" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/quiz.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <main>
+        <section class="glass-card quiz-card result-card" aria-labelledby="resultTitle">
+          <p class="quiz-badge">🏁 結果</p>
+          <h1 id="resultTitle">結果を確認しよう</h1>
+          <p class="question-text" id="resultSummary">結果を読み込んでいます…</p>
+
+          <div class="feedback" id="resultMessage" aria-live="polite"></div>
+
+          <div class="result-actions">
+            <a class="next-button" href="index.html">ホームへ戻る</a>
+            <a class="option-button" href="quiz.html">もう一度挑戦</a>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/result.js"></script>
+  </body>
+</html>

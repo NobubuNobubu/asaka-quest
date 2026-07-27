@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASAKA QUEST 管理者ログイン</title>
+    <meta name="description" content="ASAKA QUESTの管理者ログイン画面です。" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/quiz.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <main>
+        <section class="glass-card quiz-card" aria-labelledby="loginTitle">
+          <p class="quiz-badge">🔐 管理者ログイン</p>
+          <h1 id="loginTitle">管理者用ログイン</h1>
+          <p class="question-text">管理画面へ入るためのログイン画面です。</p>
+
+          <form class="login-form" id="loginForm">
+            <label class="login-field" for="adminId">管理者ID</label>
+            <input id="adminId" name="adminId" type="text" placeholder="admin" required />
+
+            <label class="login-field" for="adminPassword">パスワード</label>
+            <input id="adminPassword" name="adminPassword" type="password" placeholder="password" required />
+
+            <button class="next-button" type="submit">ログイン</button>
+          </form>
+
+          <p class="login-note">
+            ※ ここではサンプルとして、IDとパスワードを入力すると管理画面へ進めます。
+          </p>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+  </body>
+</html>

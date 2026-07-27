@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASAKA QUEST 管理画面</title>
+    <meta name="description" content="ASAKA QUESTの管理画面です。" />
+    <link rel="stylesheet" href="css/admin.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">管理画面</p>
+          <h1>ASAKA QUEST 管理パネル</h1>
+        </div>
+        <a class="back-link" href="index.html">← ホームへ戻る</a>
+      </header>
+
+      <main class="dashboard">
+        <section class="panel panel--form" aria-labelledby="formTitle">
+          <h2 id="formTitle">問題を追加</h2>
+          <form id="questionForm" class="question-form">
+            <label>
+              問題文
+              <textarea id="questionText" rows="3" required></textarea>
+            </label>
+
+            <label>
+              選択肢1
+              <input id="option1" type="text" required />
+            </label>
+
+            <label>
+              選択肢2
+              <input id="option2" type="text" required />
+            </label>
+
+            <label>
+              選択肢3
+              <input id="option3" type="text" required />
+            </label>
+
+            <label>
+              選択肢4
+              <input id="option4" type="text" required />
+            </label>
+
+            <label>
+              正解番号
+              <input id="answerIndex" type="number" min="1" max="4" value="1" required />
+            </label>
+
+            <label>
+              解説
+              <textarea id="explanation" rows="2"></textarea>
+            </label>
+
+            <label>
+              画像URL
+              <input id="imageUrl" type="url" placeholder="https://example.com/image.png" />
+            </label>
+
+            <label class="checkbox-row">
+              <input id="isPublic" type="checkbox" checked />
+              公開する
+            </label>
+
+            <button type="submit">問題を保存</button>
+          </form>
+        </section>
+
+        <section class="panel" aria-labelledby="listTitle">
+          <div class="panel__head">
+            <h2 id="listTitle">問題一覧</h2>
+            <p>編集・削除・公開・非公開・並び替えを管理できます</p>
+          </div>
+
+          <ul id="questionList" class="question-list"></ul>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/admin.js"></script>
+  </body>
+</html>

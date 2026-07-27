@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASAKA QUEST クイズ</title>
+    <meta name="description" content="ASAKA QUESTのクイズ画面です。" />
+    <link rel="stylesheet" href="css/quiz.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <a class="back-link" href="index.html">← ホームへ戻る</a>
+        <p class="progress-label" id="progressLabel">1 / 4</p>
+      </header>
+
+      <main>
+        <section class="glass-card quiz-card" aria-labelledby="questionTitle">
+          <p class="quiz-badge">🎮 クイズ</p>
+          <h1 id="questionTitle">問題を読み込んでいます…</h1>
+          <p class="question-text" id="questionText"></p>
+
+          <div class="options" id="options"></div>
+
+          <div class="feedback" id="feedback" aria-live="polite"></div>
+
+          <button class="next-button" id="nextButton" type="button" hidden>
+            次へ進む
+          </button>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/quiz.js"></script>
+  </body>
+</html>
