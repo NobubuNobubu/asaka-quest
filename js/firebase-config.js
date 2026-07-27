@@ -21,13 +21,17 @@ if (typeof firebase !== 'undefined' && isFirebaseConfigured) {
       enabled: true,
       auth: firebase.auth(),
       db: firebase.firestore(),
+      reason: 'Firebase initialized',
     };
     console.info('Firebase has been initialized.');
   } catch (error) {
     console.warn('Firebase initialization failed:', error);
-    window.asakaFirebase = { enabled: false };
+    window.asakaFirebase = { enabled: false, reason: error.message || 'Firebase init failed' };
   }
 } else {
-  console.warn('Firebase is not configured. Using local storage fallback.');
-  window.asakaFirebase = { enabled: false };
+  const reason = typeof firebase === 'undefined'
+    ? 'Firebase SDK が読み込まれていません'
+    : 'Firebase 設定が不足しています';
+  console.warn(`Firebase is not configured. Using local storage fallback. (${reason})`);
+  window.asakaFirebase = { enabled: false, reason };
 }

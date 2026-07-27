@@ -95,6 +95,20 @@ h2 {
   font-weight: 700;
 }
 
+.storage-status {
+  margin: 0.4rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+
+.storage-status.status-ok {
+  color: var(--accent-dark);
+}
+
+.storage-status.status-warn {
+  color: var(--danger);
+}
+
 .action-message {
   margin: 0.8rem 0 0;
   padding: 0.9rem 1rem;

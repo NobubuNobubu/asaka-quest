@@ -58,33 +58,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function saveQuestions(questions) {
     const normalized = normalizeOrder(questions);
     if (window.asakaFirebase?.enabled && window.asakaFirebase.db) {
+      console.info('saveQuestions: attempting Firebase save', window.asakaFirebase.reason);
       try {
         const collection = window.asakaFirebase.db.collection('questions');
-        const snapshot = await collection.get();
-        const existingIds = new Set(snapshot.docs.map((doc) => doc.id));
         const batch = window.asakaFirebase.db.batch();
 
         normalized.forEach((question) => {
           const doc = collection.doc(question.id);
           batch.set(doc, question, { merge: true });
-          existingIds.delete(question.id);
-        });
-
-        snapshot.docs.forEach((doc) => {
-          if (!normalized.some((question) => question.id === doc.id)) {
-            batch.delete(doc.ref);
-          }
         });
 
         await batch.commit();
         localStorage.setItem(storageKey, JSON.stringify(normalized));
+        return { firebase: true, local: true };
       } catch (error) {
         console.warn('Firebase への保存に失敗しました。', error);
         localStorage.setItem(storageKey, JSON.stringify(normalized));
+        return { firebase: false, local: true, error };
       }
-    } else {
-      localStorage.setItem(storageKey, JSON.stringify(normalized));
     }
+
+    console.warn('saveQuestions: Firebase 未使用、localStorage を更新します', window.asakaFirebase?.reason);
+    localStorage.setItem(storageKey, JSON.stringify(normalized));
+    return { firebase: false, local: true, error: new Error(window.asakaFirebase?.reason || 'Firebase unavailable') };
   }
 
   async function loadQuestions() {
@@ -118,7 +114,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
   let dragSourceId = null;
 
+  function updateStorageStatus(enabled, reason) {
+    const statusElement = document.getElementById('storageStatus');
+    if (!statusElement) {
+      return;
+    }
+
+    if (enabled) {
+      statusElement.textContent = 'Firebase に接続しています。変更は Firebase に保存されます。';
+      statusElement.classList.add('status-ok');
+      statusElement.classList.remove('status-warn');
+    } else {
+      statusElement.textContent = `Firebase なし: localStorage に保存します。(${reason || '理由不明'})`;
+      statusElement.classList.add('status-warn');
+      statusElement.classList.remove('status-ok');
+    }
+  }
+
   async function initializeState() {
+    updateStorageStatus(window.asakaFirebase?.enabled, window.asakaFirebase?.reason);
     state.questions = normalizeOrder(await loadQuestions());
   }
 
@@ -160,11 +174,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function saveAndRefresh(message) {
     state.questions = normalizeOrder(state.questions);
-    await saveQuestions(state.questions);
+    const result = await saveQuestions(state.questions);
     state.questions = normalizeOrder(await loadQuestions());
     renderQuestions();
     if (message) {
-      showActionMessage(message);
+      const status = result.firebase
+        ? 'Firebase に保存しました。'
+        : `Firebase に保存できませんでした。localStorage に保存しました。(${result.error?.message || '原因不明'})`;
+      showActionMessage(`${message} ${status}`);
     }
   }
 
