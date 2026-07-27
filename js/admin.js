@@ -76,9 +76,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('answerIndex').value = '1';
     document.getElementById('isPublic').checked = true;
     submitButton.textContent = '問題を保存';
+    setEditStatus(false);
     state.editingId = null;
+  }
+
+  function setEditStatus(isEditing, questionText = '') {
     const statusTag = document.getElementById('editStatus');
-    if (statusTag) {
+    if (!statusTag) {
+      return;
+    }
+
+    if (isEditing) {
+      statusTag.textContent = `編集中: ${questionText.slice(0, 24)}`;
+      statusTag.hidden = false;
+    } else {
       statusTag.textContent = '新規追加モード';
       statusTag.hidden = false;
     }
@@ -108,15 +119,22 @@ document.addEventListener('DOMContentLoaded', () => {
       questionItem.innerHTML = `
         <div>
           <strong>${item.question || '未入力の問題'}</strong>
-          <p>${item.isPublic ? '公開中' : '非公開'}・並び順: ${item.order}・正解: ${item.answerIndex}</p>
+          <p class="question-meta">
+            <span class="status-badge ${item.isPublic ? 'badge-public' : 'badge-hidden'}">${item.isPublic ? '公開中' : '非公開'}</span>
+            <span>順位: ${item.order}</span>
+            <span>正解: ${item.answerIndex}</span>
+          </p>
+          <ul class="option-list">
+            ${item.options.map((option, index) => `<li>${index + 1}. ${option}</li>`).join('')}
+          </ul>
           ${item.imageUrl ? `<img class="question-image" src="${item.imageUrl}" alt="${item.question}" />` : ''}
         </div>
         <div class="item-actions">
-          <button type="button" class="move-up">↑</button>
-          <button type="button" class="move-down">↓</button>
+          <button type="button" class="move-up">上へ</button>
+          <button type="button" class="move-down">下へ</button>
           <button type="button" class="edit-button">編集</button>
           <button type="button" class="delete-button">削除</button>
-          <button type="button" class="toggle-button">${item.isPublic ? '非公開' : '公開'}</button>
+          <button type="button" class="toggle-button">${item.isPublic ? '非公開にする' : '公開する'}</button>
         </div>
       `;
 
@@ -132,14 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('imageUrl').value = item.imageUrl;
         document.getElementById('isPublic').checked = item.isPublic;
         submitButton.textContent = '変更を保存';
-        const statusTag = document.getElementById('editStatus');
-        if (statusTag) {
-          statusTag.textContent = '編集中: ' + item.question.slice(0, 20);
-          statusTag.hidden = false;
-        }
+        setEditStatus(true, item.question);
       });
 
       questionItem.querySelector('.delete-button').addEventListener('click', () => {
+        if (!confirm('この問題を削除してもよろしいですか？')) {
+          return;
+        }
+
         state.questions = state.questions.filter((question) => question.id !== item.id);
         saveQuestions(normalizeOrder(state.questions));
         renderQuestions();
@@ -237,6 +255,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (clearFormButton) {
     clearFormButton.addEventListener('click', () => {
       resetForm();
+    });
+  }
+
+  const cancelEditButton = document.getElementById('cancelEditButton');
+  if (cancelEditButton) {
+    cancelEditButton.addEventListener('click', () => {
+      resetForm();
+      alert('編集中をキャンセルしました');
     });
   }
 

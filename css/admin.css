@@ -95,6 +95,45 @@ h2 {
   font-weight: 700;
 }
 
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.badge-public {
+  background: rgba(47, 125, 246, 0.14);
+  color: var(--accent-dark);
+}
+
+.badge-hidden {
+  background: rgba(128, 137, 152, 0.12);
+  color: var(--text-soft);
+}
+
+.question-meta {
+  margin: 0.6rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.option-list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--text-soft);
+}
+
+.option-list li {
+  margin: 0.28rem 0;
+}
+
 .question-form label {
   display: grid;
   gap: 0.35rem;
@@ -143,6 +182,12 @@ h2 {
   background: rgba(255, 255, 255, 0.95);
   color: var(--text-main);
   border: 1px solid rgba(20, 79, 156, 0.2);
+}
+
+.button-tertiary {
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text-soft);
+  border: 1px solid rgba(20, 79, 156, 0.12);
 }
 
 .panel__head p {
