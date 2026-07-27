@@ -26,8 +26,11 @@
             <button class="next-button" type="submit">ログイン</button>
           </form>
 
+          <div class="login-error" id="loginErrorMessage" aria-live="polite"></div>
+          <p class="login-status" id="loginStatus"></p>
+
           <p class="login-note">
-            ※ Firebase のメールアドレスとパスワードでログインしてください。Firebase 未設定時はローカルのサンプルログインを使用します。
+            ※ Firebase の Email/Password 認証を有効にし、ユーザーを追加した上でログインしてください。Firebase が使えない場合は、ローカルの `admin / password` でも入れます。
           </p>
         </section>
       </main>

@@ -6,6 +6,29 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  const loginErrorMessage = document.getElementById('loginErrorMessage');
+  const loginStatus = document.getElementById('loginStatus');
+
+  function showLoginError(message) {
+    if (loginErrorMessage) {
+      loginErrorMessage.textContent = message;
+    } else {
+      alert(message);
+    }
+  }
+
+  function setLoginStatus(message) {
+    if (loginStatus) {
+      loginStatus.textContent = message;
+    }
+  }
+
+  if (window.asakaFirebase?.enabled && window.asakaFirebase.auth) {
+    setLoginStatus('Firebase 認証が利用可能です。Firebase で作成したメール/パスワードでログインしてください。');
+  } else {
+    setLoginStatus(`Firebase は利用できません。${window.asakaFirebase?.reason || 'local login のみ使用可能です。'}`);
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -19,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       } catch (error) {
         console.warn('Firebase 認証に失敗しました。', error);
-        alert(`ログインに失敗しました: ${error.message}`);
+        showLoginError(`ログインに失敗しました: ${error.message}`);
         return;
       }
     }
@@ -28,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (adminId === 'admin' && adminPassword === 'password') {
       window.location.href = 'admin.html';
     } else {
-      alert('IDまたはパスワードが違います');
+      showLoginError('IDまたはパスワードが違います');
     }
   });
 });
