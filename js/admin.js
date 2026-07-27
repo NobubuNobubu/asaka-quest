@@ -1,5 +1,5 @@
 // 管理画面で問題を追加・編集・削除・公開切り替え・並び替えできるようにします。
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const form = document.getElementById('questionForm');
   const list = document.getElementById('questionList');
 
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
   ];
 
-  function loadQuestions() {
+  function loadLocalQuestions() {
     const saved = localStorage.getItem(storageKey);
     if (!saved) {
       return fallbackQuestions;
@@ -55,8 +55,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function saveQuestions(questions) {
-    localStorage.setItem(storageKey, JSON.stringify(questions));
+  async function saveQuestions(questions) {
+    const normalized = normalizeOrder(questions);
+    if (window.asakaFirebase?.enabled && window.asakaFirebase.db) {
+      try {
+        const collection = window.asakaFirebase.db.collection('questions');
+        const snapshot = await collection.get();
+        const existingIds = new Set(snapshot.docs.map((doc) => doc.id));
+        const batch = window.asakaFirebase.db.batch();
+
+        normalized.forEach((question) => {
+          const doc = collection.doc(question.id);
+          batch.set(doc, question, { merge: true });
+          existingIds.delete(question.id);
+        });
+
+        snapshot.docs.forEach((doc) => {
+          if (!normalized.some((question) => question.id === doc.id)) {
+            batch.delete(doc.ref);
+          }
+        });
+
+        await batch.commit();
+        localStorage.setItem(storageKey, JSON.stringify(normalized));
+      } catch (error) {
+        console.warn('Firebase への保存に失敗しました。', error);
+        localStorage.setItem(storageKey, JSON.stringify(normalized));
+      }
+    } else {
+      localStorage.setItem(storageKey, JSON.stringify(normalized));
+    }
+  }
+
+  async function loadQuestions() {
+    if (window.asakaFirebase?.enabled && window.asakaFirebase.db) {
+      try {
+        const snapshot = await window.asakaFirebase.db.collection('questions').orderBy('order').get();
+        const questions = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        if (questions.length) {
+          const normalized = normalizeOrder(questions);
+          localStorage.setItem(storageKey, JSON.stringify(normalized));
+          return normalized;
+        }
+      } catch (error) {
+        console.warn('Firebase から読み込みに失敗しました。', error);
+      }
+    }
+
+    return loadLocalQuestions();
   }
 
   function normalizeOrder(questions) {
@@ -67,10 +113,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const state = {
-    questions: normalizeOrder(loadQuestions()),
+    questions: [],
     editingId: null,
   };
   let dragSourceId = null;
+
+  async function initializeState() {
+    state.questions = normalizeOrder(await loadQuestions());
+  }
 
   function resetForm() {
     form.reset();
@@ -93,6 +143,28 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       statusTag.textContent = '新規追加モード';
       statusTag.hidden = false;
+    }
+  }
+
+  function showActionMessage(message) {
+    const actionMessage = document.getElementById('actionMessage');
+    if (!actionMessage) {
+      return;
+    }
+    actionMessage.textContent = message;
+    actionMessage.hidden = false;
+    setTimeout(() => {
+      actionMessage.hidden = true;
+    }, 2400);
+  }
+
+  async function saveAndRefresh(message) {
+    state.questions = normalizeOrder(state.questions);
+    await saveQuestions(state.questions);
+    state.questions = normalizeOrder(await loadQuestions());
+    renderQuestions();
+    if (message) {
+      showActionMessage(message);
     }
   }
 
@@ -153,23 +225,20 @@ document.addEventListener('DOMContentLoaded', () => {
         setEditStatus(true, item.question);
       });
 
-      questionItem.querySelector('.delete-button').addEventListener('click', () => {
+      questionItem.querySelector('.delete-button').addEventListener('click', async () => {
         if (!confirm('この問題を削除してもよろしいですか？')) {
           return;
         }
 
         state.questions = state.questions.filter((question) => question.id !== item.id);
-        saveQuestions(normalizeOrder(state.questions));
-        renderQuestions();
-        alert('問題を削除しました');
+        await saveAndRefresh('問題を削除しました');
       });
 
-      questionItem.querySelector('.toggle-button').addEventListener('click', () => {
+      questionItem.querySelector('.toggle-button').addEventListener('click', async () => {
         state.questions = state.questions.map((question) =>
           question.id === item.id ? { ...question, isPublic: !question.isPublic } : question,
         );
-        saveQuestions(normalizeOrder(state.questions));
-        renderQuestions();
+        await saveAndRefresh('公開状態を更新しました');
       });
 
       const dragHandle = questionItem.querySelector('.drag-handle');
@@ -225,8 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const [movedItem] = reordered.splice(sourceIndex, 1);
         reordered.splice(targetIndex, 0, movedItem);
         state.questions = normalizeOrder(reordered);
-        saveQuestions(state.questions);
-        renderQuestions();
+        saveAndRefresh('順番を更新しました');
       });
 
       list.appendChild(questionItem);
@@ -268,17 +336,23 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     if (state.editingId) {
-      state.questions = state.questions.map((question) =>
-        question.id === state.editingId ? { ...question, ...newQuestion } : question,
-      );
-      alert('問題を更新しました');
+      const editIndex = state.questions.findIndex((question) => question.id === state.editingId);
+      if (editIndex !== -1) {
+        state.questions[editIndex] = {
+          ...state.questions[editIndex],
+          ...newQuestion,
+        };
+      } else {
+        state.questions = state.questions.map((question) =>
+          question.id === state.editingId ? { ...question, ...newQuestion } : question,
+        );
+      }
+      saveAndRefresh('問題を更新しました');
     } else {
       state.questions.push(newQuestion);
-      alert('問題を追加しました');
+      saveAndRefresh('問題を追加しました');
     }
 
-    saveQuestions(normalizeOrder(state.questions));
-    renderQuestions();
     resetForm();
   });
 

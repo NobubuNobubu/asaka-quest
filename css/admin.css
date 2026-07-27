@@ -95,6 +95,16 @@ h2 {
   font-weight: 700;
 }
 
+.action-message {
+  margin: 0.8rem 0 0;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background: rgba(47, 125, 246, 0.09);
+  color: var(--accent-dark);
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  font-weight: 700;
+}
+
 .status-badge {
   display: inline-flex;
   align-items: center;
