@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     questions: normalizeOrder(loadQuestions()),
     editingId: null,
   };
+  let dragSourceId = null;
 
   function resetForm() {
     form.reset();
@@ -130,8 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ${item.imageUrl ? `<img class="question-image" src="${item.imageUrl}" alt="${item.question}" />` : ''}
         </div>
         <div class="item-actions">
-          <button type="button" class="move-up">上へ</button>
-          <button type="button" class="move-down">下へ</button>
+          <button type="button" class="drag-handle" aria-label="ドラッグして並べ替え">≡</button>
           <button type="button" class="edit-button">編集</button>
           <button type="button" class="delete-button">削除</button>
           <button type="button" class="toggle-button">${item.isPublic ? '非公開にする' : '公開する'}</button>
@@ -172,28 +172,55 @@ document.addEventListener('DOMContentLoaded', () => {
         renderQuestions();
       });
 
-      questionItem.querySelector('.move-up').addEventListener('click', () => {
-        const index = state.questions.findIndex((question) => question.id === item.id);
-        if (index <= 0) {
-          return;
-        }
-
-        const nextQuestions = [...state.questions];
-        [nextQuestions[index - 1], nextQuestions[index]] = [nextQuestions[index], nextQuestions[index - 1]];
-        state.questions = normalizeOrder(nextQuestions);
-        saveQuestions(state.questions);
-        renderQuestions();
+      questionItem.draggable = true;
+      questionItem.addEventListener('dragstart', (event) => {
+        dragSourceId = item.id;
+        questionItem.classList.add('dragging');
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', item.id);
       });
 
-      questionItem.querySelector('.move-down').addEventListener('click', () => {
-        const index = state.questions.findIndex((question) => question.id === item.id);
-        if (index === -1 || index >= state.questions.length - 1) {
+      questionItem.addEventListener('dragend', () => {
+        dragSourceId = null;
+        questionItem.classList.remove('dragging');
+        document.querySelectorAll('.question-item.drag-over').forEach((el) => {
+          el.classList.remove('drag-over');
+        });
+      });
+
+      questionItem.addEventListener('dragenter', (event) => {
+        if (event.currentTarget === event.target) {
+          event.currentTarget.classList.add('drag-over');
+        }
+      });
+
+      questionItem.addEventListener('dragleave', (event) => {
+        if (event.currentTarget === event.target) {
+          event.currentTarget.classList.remove('drag-over');
+        }
+      });
+
+      questionItem.addEventListener('dragover', (event) => {
+        event.preventDefault();
+      });
+
+      questionItem.addEventListener('drop', (event) => {
+        event.preventDefault();
+        const sourceId = event.dataTransfer.getData('text/plain') || dragSourceId;
+        if (!sourceId || sourceId === item.id) {
           return;
         }
 
-        const nextQuestions = [...state.questions];
-        [nextQuestions[index], nextQuestions[index + 1]] = [nextQuestions[index + 1], nextQuestions[index]];
-        state.questions = normalizeOrder(nextQuestions);
+        const sourceIndex = state.questions.findIndex((question) => question.id === sourceId);
+        const targetIndex = state.questions.findIndex((question) => question.id === item.id);
+        if (sourceIndex === -1 || targetIndex === -1) {
+          return;
+        }
+
+        const reordered = [...state.questions];
+        const [movedItem] = reordered.splice(sourceIndex, 1);
+        reordered.splice(targetIndex, 0, movedItem);
+        state.questions = normalizeOrder(reordered);
         saveQuestions(state.questions);
         renderQuestions();
       });
